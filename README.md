@@ -18,6 +18,20 @@
 
 ---
 
+## 🏗️ Mimari Diyagram
+
+> Projenin el çizimi mimarisi — Discord bot, backend ve frontend nasıl bağlanıyor?
+
+![Discord Dungeon Mimari Diyagramı](docs/architecture.png)
+
+**Akış özeti:**
+- 🖥️ **Web Form (HTML5)** — Canvas oyun alanı + Lobi kurma formu
+- ⚙️ **Backend (Node.js + Express)** — HTTP sunucu, WebSocket (ws), DC.js bot yönetimi
+- 🤖 **Discord Bot** — Guild üyeleri, üye listesi ve kanal mesajları
+- 💬 **Chat Komutları** — `1` Saldır · `2` Savun · `3` Özel · `4` İksir → Chat form üzerinden oyuna iletilir
+
+---
+
 ## 🎮 Nasıl Oynanır?
 
 Discord kanalına şu komutları yaz:
