@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Dungeon — Discord Sunucunla Savaş!</title>
+  <meta name="description" content="Discord sunucunun üyeleri canavar olarak sana karşı! Chat mesajlarıyla kahramanını kontrol et." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===================== LOBBY SCREEN ===================== -->
+  <div id="screen-lobby" class="screen active">
+    <div class="lobby-bg">
+      <div class="stars" id="stars"></div>
+      <div class="floating-emojis">
+        <span>⚔️</span><span>🐉</span><span>💀</span>
+        <span>🔥</span><span>🛡️</span><span>👺</span>
+        <span>⚔️</span><span>🧟</span><span>💫</span>
+      </div>
+    </div>
+
+    <div class="lobby-container">
+      <div class="lobby-header">
+        <div class="logo-glow">⚔️</div>
+        <h1 class="logo-title">DISCORD<br /><span class="logo-sub">DUNGEON</span></h1>
+        <p class="logo-desc">Discord sunucunun üyeleri canavar olarak karşına çıkıyor!<br />Chat'e <strong>1 2 3 4</strong> yazarak kahramanını yönet!</p>
+      </div>
+
+      <div class="command-guide">
+        <div class="cmd-item"><span class="cmd-key">1</span><span class="cmd-label">⚔️ Saldır</span></div>
+        <div class="cmd-item"><span class="cmd-key">2</span><span class="cmd-label">🛡️ Savun</span></div>
+        <div class="cmd-item"><span class="cmd-key">3</span><span class="cmd-label">🔥 Büyü</span></div>
+        <div class="cmd-item"><span class="cmd-key">4</span><span class="cmd-label">💊 İksir</span></div>
+      </div>
+
+      <div class="lobby-form-card">
+        <h2 class="form-title">🏰 Lobi Oluştur</h2>
+
+        <div id="setup-error" class="error-box" style="display:none"></div>
+
+        <div class="form-group">
+          <label for="heroName">Kahraman Adı</label>
+          <input type="text" id="heroName" placeholder="Adını gir..." maxlength="20" value="Kahraman" />
+        </div>
+
+        <div class="form-group">
+          <label for="botToken">
+            Discord Bot Token
+            <a href="https://discord.com/developers/applications" target="_blank" class="help-link">🔗 Bot Oluştur</a>
+          </label>
+          <input type="password" id="botToken" placeholder="Bot token'ını yapıştır..." />
+        </div>
+
+        <div class="form-group">
+          <label for="guildId">
+            Sunucu (Guild) ID
+            <span class="help-hint">Sunucuya sağ tıkla → ID Kopyala</span>
+          </label>
+          <input type="text" id="guildId" placeholder="123456789012345678" />
+        </div>
+
+        <div class="form-group">
+          <label for="channelId">
+            Kanal ID
+            <span class="help-hint">Kanala sağ tıkla → ID Kopyala</span>
+          </label>
+          <input type="text" id="channelId" placeholder="123456789012345678" />
+        </div>
+
+        <button id="btn-start" class="btn-primary" onclick="startLobby()">
+          <span class="btn-icon">⚔️</span> ZINDANA GİR
+        </button>
+
+        <div class="setup-info">
+          <details>
+            <summary>📘 Discord Bot Nasıl Kurulur?</summary>
+            <ol>
+              <li><a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a>'a git</li>
+              <li>"New Application" → İsim ver → Oluştur</li>
+              <li>Sol menü: <strong>Bot</strong> → "Add Bot"</li>
+              <li><strong>Privileged Gateway Intents</strong> bölümünde şunları aç:<br/>
+                ✅ Server Members Intent<br/>✅ Message Content Intent</li>
+              <li>"Reset Token" → Token'ı kopyala</li>
+              <li>Bot'u sunucuna ekle (OAuth2 → URL Generator → bot + Administrator)</li>
+            </ol>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== LOADING SCREEN ===================== -->
+  <div id="screen-loading" class="screen">
+    <div class="loading-container">
+      <div class="loading-orb"></div>
+      <h2 class="loading-title">Zindan Açılıyor...</h2>
+      <div id="loading-log" class="loading-log"></div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME SCREEN ===================== -->
+  <div id="screen-game" class="screen">
+
+    <!-- TOP HUD -->
+    <div class="hud-top">
+      <div class="hud-hero">
+        <div class="hud-avatar hero-avatar">🧙</div>
+        <div class="hud-stats">
+          <div class="hud-name" id="hud-hero-name">Kahraman</div>
+          <div class="bar-row">
+            <span class="bar-label">HP</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-hp" id="bar-hp"></div>
+            </div>
+            <span class="bar-val" id="val-hp">100/100</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">MP</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-mp" id="bar-mp"></div>
+            </div>
+            <span class="bar-val" id="val-mp">50/50</span>
+          </div>
+          <div class="hud-badges">
+            <span class="badge" id="badge-level">LV 1</span>
+            <span class="badge badge-gold" id="badge-gold">💰 0</span>
+            <span class="badge badge-potion" id="badge-potion">💊 2</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div class="floor-badge" id="floor-badge">🏰 KAT 1</div>
+        <div class="vote-timer-wrap">
+          <div class="vote-timer-label">SONRAKI HAMLE</div>
+          <div class="vote-timer-bar-track">
+            <div class="vote-timer-bar" id="vote-timer-bar"></div>
+          </div>
+          <div class="vote-counts" id="vote-counts">
+            <span>1⚔️: 0</span>
+            <span>2🛡️: 0</span>
+            <span>3🔥: 0</span>
+            <span>4💊: 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-monster" id="hud-monster-block">
+        <div class="monster-progress">
+          <span id="monster-count-label">0/0 Yenildi</span>
+        </div>
+        <div class="hud-avatar monster-avatar" id="monster-emoji">👺</div>
+        <div class="hud-stats">
+          <div class="hud-name" id="hud-monster-name">Bekleniyor...</div>
+          <div class="bar-row">
+            <span class="bar-label">HP</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-enemy" id="bar-enemy"></div>
+            </div>
+            <span class="bar-val" id="val-enemy">?/?</span>
+          </div>
+          <div class="monster-type-badge" id="monster-type-badge">?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN BATTLE AREA -->
+    <div class="battle-area">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Damage floaters container -->
+      <div id="floaters" class="floaters"></div>
+
+      <!-- Action result overlay -->
+      <div class="action-overlay" id="action-overlay"></div>
+    </div>
+
+    <!-- BOTTOM: LOG + COMMANDS -->
+    <div class="hud-bottom">
+      <div class="battle-log" id="battle-log">
+        <div class="log-header">⚔️ Savaş Günlüğü</div>
+        <div id="log-entries"></div>
+      </div>
+
+      <div class="command-panel">
+        <div class="command-panel-title">💬 Discord'da Yaz:</div>
+        <div class="command-grid">
+          <div class="cmd-card" id="cmd-1">
+            <div class="cmd-num">1</div>
+            <div class="cmd-name">⚔️ SALDIRI</div>
+            <div class="cmd-votes" id="votes-1">0 oy</div>
+          </div>
+          <div class="cmd-card" id="cmd-2">
+            <div class="cmd-num">2</div>
+            <div class="cmd-name">🛡️ SAVUN</div>
+            <div class="cmd-votes" id="votes-2">0 oy</div>
+          </div>
+          <div class="cmd-card" id="cmd-3">
+            <div class="cmd-num">3</div>
+            <div class="cmd-name">🔥 BÜYÜ</div>
+            <div class="cmd-votes" id="votes-3">0 oy</div>
+          </div>
+          <div class="cmd-card" id="cmd-4">
+            <div class="cmd-num">4</div>
+            <div class="cmd-name">💊 İKSİR</div>
+            <div class="cmd-votes" id="votes-4">0 oy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===================== END SCREENS ===================== -->
+  <div id="screen-victory" class="screen end-screen victory-screen">
+    <div class="end-content">
+      <div class="end-emoji">🏆</div>
+      <h1 class="end-title">ZAFER!</h1>
+      <p class="end-sub" id="victory-sub">Tüm canavarlar yenildi!</p>
+      <div class="end-stats" id="victory-stats"></div>
+      <button class="btn-primary" onclick="resetGame()">🔄 Tekrar Oyna</button>
+    </div>
+  </div>
+
+  <div id="screen-gameover" class="screen end-screen gameover-screen">
+    <div class="end-content">
+      <div class="end-emoji">💀</div>
+      <h1 class="end-title">OYUN BİTTİ</h1>
+      <p class="end-sub" id="gameover-sub">Kahraman yenildi...</p>
+      <div class="end-stats" id="gameover-stats"></div>
+      <button class="btn-primary" onclick="resetGame()">🔄 Tekrar Dene</button>
+    </div>
+  </div>
+
+  <script src="js/canvas.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/lobby.js"></script>
+</body>
+</html>
